@@ -6,8 +6,19 @@ package scan
 import (
 	"fmt"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
+
+//-----------------------------------------------------------------------------
+
+func isSpace(r rune) bool {
+	return unicode.IsSpace(r)
+}
+
+func isAlphaNumeric(r rune) bool {
+	return unicode.IsLetter(r) || unicode.IsNumber(r)
+}
 
 //-----------------------------------------------------------------------------
 // scanner token items
@@ -56,6 +67,8 @@ func (i item) String() string {
 //-----------------------------------------------------------------------------
 
 const leftMeta = "{{"
+const rightMeta = "}}"
+const eof = 0
 
 //-----------------------------------------------------------------------------
 // lexer and helper functions
@@ -96,15 +109,15 @@ func (l *lexer) emit(t itemType) {
 }
 
 // next returns the next rune in the input.
-func (l *lexer) next() (rune int) {
+func (l *lexer) next() rune {
 	if l.pos >= len(l.input) {
 		l.width = 0
 		return eof
 	}
-	rune, l.width =
-		utf8.DecodeRuneInString(l.input[l.pos:])
+	r, n := utf8.DecodeRuneInString(l.input[l.pos:])
+	l.width = n
 	l.pos += l.width
-	return rune
+	return r
 }
 
 // ignore skips over the pending input before this point.
@@ -120,10 +133,10 @@ func (l *lexer) backup() {
 
 // peek returns but does not consume
 // the next rune in the input.
-func (l *lexer) peek() int {
-	rune := l.next()
+func (l *lexer) peek() rune {
+	r := l.next()
 	l.backup()
-	return rune
+	return r
 }
 
 // accept consumes the next rune
@@ -231,6 +244,21 @@ func lexNumber(l *lexer) stateFn {
 	}
 	l.emit(itemNumber)
 	return lexInsideAction
+}
+
+func lexRightMeta(l *lexer) stateFn {
+	return nil
+}
+func lexQuote(l *lexer) stateFn {
+	return nil
+}
+
+func lexRawQuote(l *lexer) stateFn {
+	return nil
+}
+
+func lexIdentifier(l *lexer) stateFn {
+	return nil
 }
 
 // error returns an error token and terminates the scan
