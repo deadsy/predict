@@ -11,12 +11,12 @@ import (
 
 //-----------------------------------------------------------------------------
 
-func Test_MM(t *testing.T) {
-	a := []float32{
+func Test_MM1(t *testing.T) {
+	a := []float64{
 		0.3, 0.7,
 		0.4, 0.6,
 	}
-	pi := []float32{
+	pi := []float64{
 		0.5, 0.5,
 	}
 	mm, err := NewMM(2, a, pi)
@@ -25,7 +25,22 @@ func Test_MM(t *testing.T) {
 		return
 	}
 	s := mm.Init()
-	for i := 1; i < 100; i++ {
+	for i := 1; i < 20; i++ {
+		log.Printf("%d", s)
+		s = mm.Next()
+	}
+}
+
+//-----------------------------------------------------------------------------
+
+func Test_MM2(t *testing.T) {
+	mm, err := NewMM(7, nil, nil)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	s := mm.Init()
+	for i := 1; i < 20; i++ {
 		log.Printf("%d", s)
 		s = mm.Next()
 	}
